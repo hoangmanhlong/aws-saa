@@ -214,9 +214,10 @@
 
       /* Tiêu đề về bên phải */
       .header h1 {
-        flex: 1;
+        display: inline-block;
         text-align: left;
         margin: 0;
+        cursor: pointer;
       }
 
       /* Nút toggle icon */
@@ -262,7 +263,9 @@
   </head>
   <body>
     <header class="header">
-      <h1>AWS Solutions Architect Associate</h1>
+      <h1 id="page_title">
+        AWS Solutions Architect Associate
+      </h1>
       <!-- Nút toggle theme bên trái -->
       <button
         id="themeToggleBtn"
@@ -50348,10 +50351,12 @@
       <button id="nextBtn">Next</button>
     </div>
     <script>
-      let currentPage = 1;
+      const DEFAULT_CURRENT_PAGE = 1;
+      let currentPage = DEFAULT_CURRENT_PAGE;
       const questionsPerPage = 10; // Set how many questions you want per page
       const questions = document.querySelectorAll(".question");
       const totalPages = Math.ceil(questions.length / questionsPerPage);
+      const STORAGE_CURRENT_PAGE_KEY = "current-page";
 
       // Function to display the correct page and update the page number and input
       function showPage(page) {
@@ -50378,6 +50383,8 @@
         // Update button states
         document.getElementById("prevBtn").disabled = page === 1;
         document.getElementById("nextBtn").disabled = page === totalPages;
+
+        localStorage.setItem(STORAGE_CURRENT_PAGE_KEY, page);
       }
 
       // Function to highlight the answer with the most votes
@@ -50430,8 +50437,13 @@
         }
       });
 
-      // Show the first page on load
-      showPage(currentPage);
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedPage = parseInt(localStorage.getItem(STORAGE_CURRENT_PAGE_KEY));
+        if (savedPage && savedPage >= 1 && savedPage <= totalPages) {
+          currentPage = savedPage;
+        }
+        showPage(currentPage);
+      });
 
       // preserve original toggleAnswer function but make it robust
       function toggleAnswer(id) {
@@ -50446,6 +50458,14 @@
           answerDiv.style.display = "none";
         }
       }
+
+      document.getElementById("page_title").addEventListener("click", () => {
+        if (currentPage === DEFAULT_CURRENT_PAGE) {
+          return;
+        }
+        currentPage = DEFAULT_CURRENT_PAGE;
+        showPage(currentPage);
+      });
 
       // Theme toggle logic
       (function () {
